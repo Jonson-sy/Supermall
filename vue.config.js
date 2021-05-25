@@ -1,4 +1,4 @@
-module.expoet = {
+module.exports = {
   configureWebpack: {    //webpack配置
     resolve: {
       alias: {           //别名

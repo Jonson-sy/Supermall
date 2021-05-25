@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-const Home = () => import('views/home/Home')
-const Category = () => import('views/category/Category')
-const Shopcart = () => import('views/shopcart/Shopcart')
-const Profile = () => import('views/profile/Profile')
+const Home = () => import('../views/home/Home')
+const Category = () => import('../views/category/Category')
+const Shopcart = () => import('../views/shopcart/Shopcart')
+const Profile = () => import('../views/profile/Profile')
 
 Vue.use(VueRouter)
 
@@ -15,31 +15,19 @@ const routes = [
   },
   {
     path: '/home',
-    component: 'Home',
-    meta: {
-      title: '首页'
-    }
+    component: Home,
   },
   {
     path: '/category',
-    component: 'Category',
-    meta: {
-      title: '分类'
-    }
+    component: Category,
   },
   {
     path: '/shopcart',
-    component: 'Shopcart',
-    meta: {
-      title: '购物车'
-    }
+    component: Shopcart,
   },
   {
     path: '/profile',
-    component: 'Profile',
-    meta: {
-      title: '我的'
-    }
+    component: Profile,
   },
 ]
 
