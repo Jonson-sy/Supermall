@@ -1,6 +1,12 @@
 <template>
   <div class="wrapper">
     <ul class="content">
+      <!--1.无论是否设置click:false, button都可以点击-->
+      <button @click="btnClick">按钮</button>
+
+      <!--2.必须设置click:true, 那么div才能监听点击-->
+      <div @click="divClick">呵呵呵呵</div>
+
       <li>列表内容1</li>
       <li>列表内容2</li>
       <li>列表内容3</li>
@@ -115,7 +121,17 @@ export default {
     };
   },
   mounted() {
-    this.scroll = new Bscroll(document.querySelector(".wrapper"), {});
+    this.scroll = new Bscroll(document.querySelector(".wrapper"), {
+      click: false,
+    });
+  },
+  methods: {
+    btnClick() {
+      console.log("btnClick");
+    },
+    divClick() {
+      console.log("divClick");
+    },
   },
 };
 </script>

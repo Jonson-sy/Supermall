@@ -1,15 +1,25 @@
 <template>
   <div id="home">
     <nav-bar class="homesnav"><div slot="center">购物街</div></nav-bar>
-    <home-swiper :banners="banners"></home-swiper>
-    <home-recommend :recommends="recommends"></home-recommend>
-    <popular></popular>
-    <tab-control
-      :titles="['流行', '新款', '精选']"
-      class="tab-control"
-      @tabClick="tabClick"
-    />
-    <goods-list :goods="showGoods"></goods-list>
+    <scroll
+      class="content"
+      ref="scroll"
+      :probeType="3"
+      @scroll="contentScroll"
+      :pullUpLoad="true"
+      @pullingUp="loadMore"
+    >
+      <home-swiper :banners="banners"></home-swiper>
+      <home-recommend :recommends="recommends"></home-recommend>
+      <popular></popular>
+      <tab-control
+        :titles="['流行', '新款', '精选']"
+        class="tab-control"
+        @tabClick="tabClick"
+      />
+      <goods-list :goods="showGoods"></goods-list>
+    </scroll>
+    <back-top @click.native="backTopClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -24,6 +34,8 @@ import Popular from "./childComps/Popular";
 import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabcontrol/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
+import Scroll from "components/common/scroll/Scroll";
+import BackTop from "components/content/backTop/BackTop";
 
 //导入网络相关
 import { getHomeMultiData, getHomeGoods } from "network/home";
@@ -37,6 +49,8 @@ export default {
     NavBar,
     TabControl,
     GoodsList,
+    Scroll,
+    BackTop,
   },
   data() {
     return {
@@ -48,6 +62,7 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
+      isShowBackTop: false,
     };
   },
   created() {
@@ -58,6 +73,14 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
+  },
+  mounted() {
+    //监听图片的加载完成：注意不要再created中监听
+    this.$bus.$on("itemImgLoad", () => {
+      //从事件总线监听到itemImgLoad事件
+      console.log("一张图片加载完成");
+      this.$refs.scroll.refresh(); //更新scroll
+    });
   },
   methods: {
     /*
@@ -76,6 +99,17 @@ export default {
           break;
       }
     },
+    backTopClick() {
+      this.$refs.scroll.backTop(0, 0, 600);
+    },
+    contentScroll(position) {
+      // console.log(position);
+      this.isShowBackTop = -position.y > 900;
+    },
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+      // this.$refs.scroll.scroll.refresh();
+    },
 
     /*
      **网络请求的相关方法
@@ -92,6 +126,11 @@ export default {
         // console.log(res);
         this.goods[type].list.push(...res.data.list); //将请求到的30条数据追加到goods里对应类型的list里面
         this.goods[type].page++; //更新data里面goods里的page
+
+        //完成了上拉加载更多
+        setTimeout(() => {
+          this.$refs.scroll.finishPullUp();
+        }, 800);
       });
     },
   },
@@ -105,7 +144,9 @@ export default {
 
 <style scoped>
 #home {
-  padding-top: 44px;
+  /* padding-top: 44px; */
+  height: 100vh;
+  position: relative;
 }
 .homesnav {
   background-color: var(--color-tint);
@@ -122,5 +163,17 @@ export default {
   position: sticky;
   top: 44px;
   z-index: 9;
+}
+
+/*.content {
+  height: calc(100%-93px);
+  margin-top: 44px;
+} */
+.content {
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  left: 0;
+  right: 0;
 }
 </style>
