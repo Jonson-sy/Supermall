@@ -1,6 +1,13 @@
 <template>
   <div id="home">
     <nav-bar class="homesnav"><div slot="center">购物街</div></nav-bar>
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabControlFixed"
+    />
     <scroll
       class="content"
       ref="scroll"
@@ -9,13 +16,16 @@
       :pullUpLoad="true"
       @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper
+        :banners="banners"
+        @swiperImgLoad="swiperImgLoad"
+      ></home-swiper>
       <home-recommend :recommends="recommends"></home-recommend>
       <popular></popular>
       <tab-control
         :titles="['流行', '新款', '精选']"
-        class="tab-control"
         @tabClick="tabClick"
+        ref="tabControl2"
       />
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
@@ -40,6 +50,9 @@ import BackTop from "components/content/backTop/BackTop";
 //导入网络相关
 import { getHomeMultiData, getHomeGoods } from "network/home";
 
+//导入其他
+import { debounce } from "common/utils";
+
 export default {
   components: {
     HomeSwiper,
@@ -63,6 +76,9 @@ export default {
       },
       currentType: "pop",
       isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabControlFixed: false,
+      saveY: 0,
     };
   },
   created() {
@@ -75,13 +91,24 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
-    //监听图片的加载完成：注意不要再created中监听
+    //1，监听图片的加载完成：注意不要在created中监听
+    const refresh = debounce(this.$refs.scroll.refresh, 50);
     this.$bus.$on("itemImgLoad", () => {
       //从事件总线监听到itemImgLoad事件
-      console.log("一张图片加载完成");
-      this.$refs.scroll.refresh(); //更新scroll
+      refresh(); //更新scroll
     });
   },
+  //解决老版本BS离开再进入某页面时不能保持位置的问题
+  // destroyed() {
+  //   console.log("-----");
+  // },
+  // activated() {
+  //   this.$refs.scroll.scroll.scrollTo(0, this.saveY, 0);
+  //   this.$refs.scroll.refresh();
+  // },
+  // deactivated() {
+  //   this.saveY = this.$refs.scroll.getScrollY();
+  // },
   methods: {
     /*
      **事件监听的相关方法
@@ -98,17 +125,30 @@ export default {
           this.currentType = "sell";
           break;
       }
+      //使两个tab-control的currentIndex保持一致
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backTopClick() {
       this.$refs.scroll.backTop(0, 0, 600);
     },
     contentScroll(position) {
       // console.log(position);
+      //1,判断backtop是否显示
       this.isShowBackTop = -position.y > 900;
+
+      //2，决定tabcontrol是否吸顶（position = fixed）
+      this.isTabControlFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
       this.getHomeGoods(this.currentType);
       // this.$refs.scroll.scroll.refresh();
+    },
+    swiperImgLoad() {
+      //获取tabcontrol的offsetTop
+      //所有的组件都有一个属性（$el），用于获取组件中的元素
+      console.log(this.$refs.tabControl2.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
 
     /*
@@ -152,28 +192,42 @@ export default {
   background-color: var(--color-tint);
   color: #fff;
   font-size: 18px;
-  position: fixed;
+  /*在使用浏览器原生滚动时, 为了让导航不跟随一起滚动*/
+  /*position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  z-index: 9;
+  right: 0; 
+  z-index: 9;*/
 }
 
 .tab-control {
+  position: relative;
+  top: -1px; /* 于导航栏之间有缝隙 */
+  z-index: 9;
+}
+/* .tab-control {
   position: sticky;
   top: 44px;
   z-index: 9;
-}
+} */
 
 /*.content {
   height: calc(100%-93px);
   margin-top: 44px;
 } */
 .content {
+  overflow: hidden; /* 必要 */
   position: absolute;
   top: 44px;
   bottom: 49px;
   left: 0;
   right: 0;
 }
+
+/* .fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
+} */
 </style>
