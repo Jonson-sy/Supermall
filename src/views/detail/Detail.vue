@@ -1,111 +1,19 @@
 <template>
-  <div class="detail">
-    <detail-nav-bar></detail-nav-bar>
-    <detail-swiper :top-images="topImages"></detail-swiper>
-    <detail-goods-desc :goods="goods"></detail-goods-desc>
-    <detail-shop-info :shop="shop"></detail-shop-info>
-    <ul>
-      <li>haha1</li>
-      <li>haha2</li>
-      <li>haha3</li>
-      <li>haha4</li>
-      <li>haha5</li>
-      <li>haha6</li>
-      <li>haha7</li>
-      <li>haha8</li>
-      <li>haha9</li>
-      <li>haha10</li>
-      <li>haha11</li>
-      <li>haha12</li>
-      <li>haha13</li>
-      <li>haha14</li>
-      <li>haha15</li>
-      <li>haha16</li>
-      <li>haha17</li>
-      <li>haha18</li>
-      <li>haha19</li>
-      <li>haha20</li>
-      <li>haha21</li>
-      <li>haha22</li>
-      <li>haha23</li>
-      <li>haha24</li>
-      <li>haha25</li>
-      <li>haha26</li>
-      <li>haha27</li>
-      <li>haha28</li>
-      <li>haha29</li>
-      <li>haha30</li>
-      <li>haha31</li>
-      <li>haha32</li>
-      <li>haha33</li>
-      <li>haha34</li>
-      <li>haha35</li>
-      <li>haha36</li>
-      <li>haha37</li>
-      <li>haha38</li>
-      <li>haha39</li>
-      <li>haha40</li>
-      <li>haha41</li>
-      <li>haha42</li>
-      <li>haha43</li>
-      <li>haha44</li>
-      <li>haha45</li>
-      <li>haha46</li>
-      <li>haha47</li>
-      <li>haha48</li>
-      <li>haha49</li>
-      <li>haha50</li>
-      <li>haha51</li>
-      <li>haha52</li>
-      <li>haha53</li>
-      <li>haha54</li>
-      <li>haha55</li>
-      <li>haha56</li>
-      <li>haha57</li>
-      <li>haha58</li>
-      <li>haha59</li>
-      <li>haha60</li>
-      <li>haha61</li>
-      <li>haha62</li>
-      <li>haha63</li>
-      <li>haha64</li>
-      <li>haha65</li>
-      <li>haha66</li>
-      <li>haha67</li>
-      <li>haha68</li>
-      <li>haha69</li>
-      <li>haha70</li>
-      <li>haha71</li>
-      <li>haha72</li>
-      <li>haha73</li>
-      <li>haha74</li>
-      <li>haha75</li>
-      <li>haha76</li>
-      <li>haha77</li>
-      <li>haha78</li>
-      <li>haha79</li>
-      <li>haha80</li>
-      <li>haha81</li>
-      <li>haha82</li>
-      <li>haha83</li>
-      <li>haha84</li>
-      <li>haha85</li>
-      <li>haha86</li>
-      <li>haha87</li>
-      <li>haha88</li>
-      <li>haha89</li>
-      <li>haha90</li>
-      <li>haha91</li>
-      <li>haha92</li>
-      <li>haha93</li>
-      <li>haha94</li>
-      <li>haha95</li>
-      <li>haha96</li>
-      <li>haha97</li>
-      <li>haha98</li>
-      <li>haha99</li>
-      <li>haha100</li>
-    </ul>
+  <div id="detail">
+    <detail-nav-bar class="detail-nav"></detail-nav-bar>
+    <scroll class="wrapper" ref="scroll">
+      <detail-swiper
+        :top-images="topImages"
+        @swiperImgLoad="swiperImgLoad"
+      ></detail-swiper>
+      <detail-goods-desc :goods="goods"></detail-goods-desc>
+      <detail-shop-info :shop="shop"></detail-shop-info>
+      <detail-goods-info
+        :goodsInfo="goodsInfo"
+        @goodsImgLoad="goodsImgLoad"
+      ></detail-goods-info>
+      <detail-goods-params :goods-params="goodsParams"></detail-goods-params>
+    </scroll>
   </div>
 </template>
 
@@ -115,9 +23,16 @@ import DetailNavBar from "./childComps/DetailNavBar";
 import DetailSwiper from "./childComps/DetailSwiper";
 import DetailGoodsDesc from "./childComps/DetailGoodsDesc";
 import DetailShopInfo from "./childComps/DetailShopInfo";
+import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
+import DetailGoodsParams from "./childComps/DetailGoodsParams";
+
+import Scroll from "components/common/scroll/Scroll";
 
 //导入网络请求相关
-import { getDetailData, Goods, Shop } from "network/detail";
+import { getDetailData, Goods, Shop, GoodsParams } from "network/detail";
+
+//导入其他
+import { debounce } from "common/utils";
 
 export default {
   name: "Detail", //在keep-alive中使用exclude时是根据此name属性来寻找组件的
@@ -127,6 +42,8 @@ export default {
       topImages: [],
       goods: {},
       shop: {},
+      goodsInfo: {},
+      goodsParams: {},
     };
   },
   components: {
@@ -134,6 +51,9 @@ export default {
     DetailSwiper,
     DetailGoodsDesc,
     DetailShopInfo,
+    DetailGoodsInfo,
+    DetailGoodsParams,
+    Scroll,
   },
 
   created() {
@@ -156,8 +76,17 @@ export default {
         data.shopInfo.services
       );
 
-      //获取店铺信息
+      //3,获取店铺信息
       this.shop = new Shop(data.shopInfo);
+
+      //4，获取商品详情信息
+      this.goodsInfo = data.detailInfo;
+
+      //5，获取商品参数数据
+      this.goodsParams = new GoodsParams(
+        data.itemParams.info,
+        data.itemParams.rule
+      );
     });
   },
   /* activated() {
@@ -172,8 +101,34 @@ export default {
       this.topImages = res.result.itemInfo.topImages;
     });
   }, */
+  mounted() {},
+  methods: {
+    swiperImgLoad() {
+      // console.log("监听到了轮播图图片加载");
+      const refresh = debounce(this.$refs.scroll.refresh, 50);
+      refresh();
+    },
+    goodsImgLoad() {
+      const refresh = debounce(this.$refs.scroll.refresh, 50);
+      refresh();
+    },
+  },
 };
 </script>
 
 <style scoped>
+#detail {
+  position: relative;
+  z-index: 9;
+  background-color: #fff;
+  height: 100vh;
+}
+.wrapper {
+  height: calc(100% - 44px);
+}
+.detail-nav {
+  position: relative;
+  z-index: 9;
+  background-color: #fff;
+}
 </style>

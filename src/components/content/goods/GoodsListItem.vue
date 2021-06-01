@@ -21,7 +21,8 @@ export default {
   },
   methods: {
     imgLoad() {
-      this.$bus.$emit("itemImgLoad"); //当一张图片加载完成即将itemImgLoad事件发射到事件总线上（非父子组件之间的通信）
+      this.$bus.$emit("itemImgLoad");
+      //当一张图片加载完成即将itemImgLoad事件发射到事件总线上（非父子组件之间的通信）
     },
     goodsItemClick() {
       this.$router.push("/detail/" + this.goodsItem.iid);

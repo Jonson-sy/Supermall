@@ -9,7 +9,7 @@
       v-show="isTabControlFixed"
     />
     <scroll
-      class="content"
+      class="wrapper"
       ref="scroll"
       :probeType="3"
       @scroll="contentScroll"
@@ -94,7 +94,9 @@ export default {
     //1，监听图片的加载完成：注意不要在created中监听
     const refresh = debounce(this.$refs.scroll.refresh, 50);
     this.$bus.$on("itemImgLoad", () => {
-      //从事件总线监听到itemImgLoad事件
+      //从事件总线监听itemImgLoad事件
+      //★★★★★ 非父子组件之间传值 ★★★★★ 可使用事件总线 ★★★★★（先用vue的原型将vue实例赋值给$bus）★★★★★
+      // console.log("监听到了图片加载完成"); //一页会监听到30次，但我们不希望scroll也刷新30次！即可使用防抖函数
       refresh(); //更新scroll
     });
   },
@@ -203,7 +205,7 @@ export default {
 .tab-control {
   position: relative;
   top: -1px; /* 于导航栏之间有缝隙 */
-  z-index: 9;
+  z-index: 9; /* 必须要有定位才能设置z-index */
 }
 /* .tab-control {
   position: sticky;
@@ -211,11 +213,11 @@ export default {
   z-index: 9;
 } */
 
-/*.content {
+/*.wrapper {
   height: calc(100%-93px);
   margin-top: 44px;
 } */
-.content {
+.wrapper {
   overflow: hidden; /* 必要 */
   position: absolute;
   top: 44px;
