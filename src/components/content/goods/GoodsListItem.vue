@@ -1,6 +1,6 @@
 <template>
   <div class="goods-list-item" @click="goodsItemClick">
-    <img :src="goodsItem.show.img" alt="" @load="imgLoad" />
+    <img :src="showImage" alt="" @load="imgLoad" />
     <div class="goods-info">
       <p>{{ goodsItem.title }}</p>
       <span class="price">¥：{{ goodsItem.price }}</span>
@@ -17,6 +17,14 @@ export default {
       default() {
         return {};
       },
+    },
+  },
+  computed: {
+    showImage() {
+      //防止同一个组件在不同地方使用时接口的数据位置不一致的问题
+      return (
+        this.goodsItem.img || this.goodsItem.image || this.goodsItem.show.img
+      );
     },
   },
   methods: {

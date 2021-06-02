@@ -13,23 +13,34 @@
         @goodsImgLoad="goodsImgLoad"
       ></detail-goods-info>
       <detail-goods-params :goods-params="goodsParams"></detail-goods-params>
+      <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
+      <goods-list :goods-list="recommend"></goods-list>
     </scroll>
   </div>
 </template>
 
 <script>
 //导入相关组件
+//导入子组件
 import DetailNavBar from "./childComps/DetailNavBar";
 import DetailSwiper from "./childComps/DetailSwiper";
 import DetailGoodsDesc from "./childComps/DetailGoodsDesc";
 import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailGoodsParams from "./childComps/DetailGoodsParams";
-
+import DetailCommentInfo from "./childComps/DetailCommentInfo";
+//导入公共组件
 import Scroll from "components/common/scroll/Scroll";
+import GoodsList from "components/content/goods/GoodsList";
 
 //导入网络请求相关
-import { getDetailData, Goods, Shop, GoodsParams } from "network/detail";
+import {
+  getDetailData,
+  Goods,
+  Shop,
+  GoodsParams,
+  getRecommend,
+} from "network/detail";
 
 //导入其他
 import { debounce } from "common/utils";
@@ -44,6 +55,8 @@ export default {
       shop: {},
       goodsInfo: {},
       goodsParams: {},
+      commentInfo: {},
+      recommend: [],
     };
   },
   components: {
@@ -53,19 +66,21 @@ export default {
     DetailShopInfo,
     DetailGoodsInfo,
     DetailGoodsParams,
+    DetailCommentInfo,
     Scroll,
+    GoodsList,
   },
 
   created() {
     // console.log("重新创建了");
-    //1，保存传入的iid
+    //一，保存传入的iid
     // this.iid = this.$route.query.iid;
     this.iid = this.$route.params.iid;
 
-    //2，根据iid请求详情页的数据
+    //二，根据iid请求详情页的数据
     getDetailData(this.iid).then((res) => {
       //1，获取顶部轮播图的数据
-      console.log(res);
+      // console.log(res);
       const data = res.result;
       this.topImages = data.itemInfo.topImages;
 
@@ -87,6 +102,17 @@ export default {
         data.itemParams.info,
         data.itemParams.rule
       );
+
+      //6，保存评论数据
+      if (data.rate.list) {
+        this.commentInfo = data.rate.list[0];
+      }
+    });
+
+    //三，请求推荐的数据并保存
+    getRecommend().then((res) => {
+      // console.log(res);
+      this.recommend = res.data.list;
     });
   },
   /* activated() {

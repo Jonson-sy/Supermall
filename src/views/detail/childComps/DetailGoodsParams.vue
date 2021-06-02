@@ -1,11 +1,22 @@
 <template>
   <div class="goods-params">
-    <table v-for="(table, index) in goodsParams.size" :key="index">
+    <table
+      v-for="(table, index) in goodsParams.size"
+      :key="index"
+      class="table-rule"
+      :class="index === goodsParams.size.length - 1 ? 'lastChild' : ''"
+    >
+      <!-- 动态的给遍历的最后一个元素绑定class -->
       <tr v-for="(tr, index1) in table" :key="index1">
         <td v-for="(td, index2) in tr" :key="index2">{{ td }}</td>
       </tr>
     </table>
-    <table></table>
+    <table class="table-info">
+      <tr v-for="(item, index) in goodsParams.info" :key="index">
+        <td>{{ item.key }}</td>
+        <td>{{ item.value }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -25,28 +36,56 @@ export default {
 <style scoped>
 .goods-params {
   font-size: 16px;
-  padding: 20px 15px;
-  border-bottom: 5px solid #ccc;
+  padding: 20px 15px 20px;
+  width: 100%;
+  border-bottom: 5px solid #ddd;
 }
 
-.goods-params table {
+table tr {
   width: 100%;
-  height: 40px;
+  border-bottom: 2px solid #eee;
+  line-height: 55px;
+}
+
+.table-rule {
+  width: 100%;
+  height: 55px;
   display: flex;
 }
 
-.goods-params table tr {
-  width: 100%;
-  border-bottom: 2px solid #ccc;
-}
-.goods-params table tr td {
+.table-rule tr td {
   flex: 1;
-  /* justify-content: space-between;
-  flex-wrap: wrap; */
-  line-height: 40px;
 }
 
-.goods-params table tr td:first-child {
-  width: 40%;
+.lastChild {
+  border-bottom: 4px solid #ddd;
 }
-</style>
+
+.table-rule tr:first-child {
+  padding-right: 25%;
+}
+.table-info {
+  width: 100%;
+}
+.table-info tr {
+  width: 100%;
+  height: 55px;
+  border-bottom: 2px solid #eee;
+  display: flex;
+}
+
+.table-info tr td {
+  float: left;
+}
+
+.table-info tr td:first-child {
+  width: 35%;
+}
+.table-info tr td:last-child {
+  color: var(--color-tint);
+  width: 100%;
+  height: 100%;
+  line-height: 55px;
+  overflow: hidden;
+}
+</style> 

@@ -27,7 +27,7 @@
         @tabClick="tabClick"
         ref="tabControl2"
       />
-      <goods-list :goods="showGoods"></goods-list>
+      <goods-list :goods-list="showGoods"></goods-list>
     </scroll>
     <back-top @click.native="backTopClick" v-show="isShowBackTop"></back-top>
   </div>
@@ -81,6 +81,11 @@ export default {
       saveY: 0,
     };
   },
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list;
+    },
+  },
   created() {
     //在生命周期函数内进行的网络请求
     // 1，请求首页上部分的多个数据
@@ -100,6 +105,7 @@ export default {
       refresh(); //更新scroll
     });
   },
+
   //解决老版本BS离开再进入某页面时不能保持位置的问题
   // destroyed() {
   //   console.log("-----");
@@ -174,11 +180,6 @@ export default {
           this.$refs.scroll.finishPullUp();
         }, 800);
       });
-    },
-  },
-  computed: {
-    showGoods() {
-      return this.goods[this.currentType].list;
     },
   },
 };
