@@ -14,7 +14,9 @@
     <table class="table-info">
       <tr v-for="(item, index) in goodsParams.info" :key="index">
         <td>{{ item.key }}</td>
-        <td>{{ item.value }}</td>
+        <td>
+          <span>{{ item.value }}</span>
+        </td>
       </tr>
     </table>
   </div>
@@ -84,8 +86,6 @@ table tr {
 .table-info tr td:last-child {
   color: var(--color-tint);
   width: 100%;
-  height: 100%;
-  line-height: 55px;
   overflow: hidden;
 }
 </style> 
