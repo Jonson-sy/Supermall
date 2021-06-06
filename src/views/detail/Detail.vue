@@ -14,7 +14,10 @@
       ></detail-goods-info>
       <detail-goods-params :goods-params="goodsParams"></detail-goods-params>
       <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-      <goods-list :goods-list="recommend"></goods-list>
+      <div>
+        <div class="bottomRcmd">猜你喜欢</div>
+        <goods-list :goods-list="recommend"></goods-list>
+      </div>
     </scroll>
   </div>
 </template>
@@ -44,6 +47,7 @@ import {
 
 //导入其他
 import { debounce } from "common/utils";
+import { itemImgLoadMixin } from "common/mixin";
 
 export default {
   name: "Detail", //在keep-alive中使用exclude时是根据此name属性来寻找组件的
@@ -70,7 +74,8 @@ export default {
     Scroll,
     GoodsList,
   },
-
+  //混入的应用
+  mixins: [itemImgLoadMixin],
   created() {
     // console.log("重新创建了");
     //一，保存传入的iid
@@ -127,16 +132,26 @@ export default {
       this.topImages = res.result.itemInfo.topImages;
     });
   }, */
-  mounted() {},
+  mounted() {
+    //原代码见混入
+  },
+  destroyed() {
+    this.$bus.$off("itemImgLoad", this.itemImgLoadFunc);
+    // console.log("取消了详情页的监听图片加载及scroll刷新");
+  },
   methods: {
     swiperImgLoad() {
+      //假如轮播如有四张图片，此方法即会被调用四次，即会调用四次refresh，但refresh等于防抖函数，即具有了防抖功能
+      //直接使用 const refresh = ...  refresh会被赋值四次(因为是在块级作用域内)，虽然也有防抖，但达不到防抖效果
       // console.log("监听到了轮播图图片加载");
-      const refresh = debounce(this.$refs.scroll.refresh, 50);
-      refresh();
+      this.refresh(); //混入里将refresh存入了data里面，所以只要详情页mixin了其data即具有了refresh方法
+      // const refresh = debounce(this.$refs.scroll.refresh, 50);
+      // refresh();
     },
     goodsImgLoad() {
-      const refresh = debounce(this.$refs.scroll.refresh, 50);
-      refresh();
+      this.refresh();
+      // const refresh = debounce(this.$refs.scroll.refresh, 50);
+      // refresh();
     },
   },
 };
@@ -156,5 +171,16 @@ export default {
   position: relative;
   z-index: 9;
   background-color: #fff;
+}
+.bottomRcmd {
+  width: 35vw;
+  height: 5vh;
+  line-height: 5vh;
+  text-align: center;
+  font-size: 20px;
+  color: var(--color-tint);
+  margin: 10px 30vw;
+  border: 2px solid var(--color-tint);
+  border-radius: 20px;
 }
 </style>

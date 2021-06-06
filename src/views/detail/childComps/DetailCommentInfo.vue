@@ -12,6 +12,7 @@
       <div class="comment">
         <p>{{ commentInfo.content }}</p>
         <div class="params">
+          <!-- 过滤器的使用：左边为要过滤的参数+"|"+右边是过滤器的名字 -->
           <span class="date">{{ commentInfo.created | showDate }}</span>
           <span class="color">{{ commentInfo.style }}</span>
         </div>
@@ -28,7 +29,9 @@
 </template>
 
 <script>
+//导入时间格式化函数
 import { formatDate } from "common/utils";
+
 export default {
   props: {
     commentInfo: {
@@ -40,8 +43,10 @@ export default {
   },
   filters: {
     showDate: function (value) {
+      //1：将系统返回的时间戳参数*1000后传入Date内置对象
       let date = new Date(value * 1000);
-      return formatDate(date, "yyyy-MM-dd");
+      //2：调用时间格式化函数，并将Date对象和要转化的格式传入函数
+      return formatDate(date, "yyyy-MM-dd hh:mm:ss");
     },
   },
 };

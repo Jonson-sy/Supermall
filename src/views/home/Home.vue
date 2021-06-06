@@ -20,8 +20,11 @@
         :banners="banners"
         @swiperImgLoad="swiperImgLoad"
       ></home-swiper>
-      <home-recommend :recommends="recommends"></home-recommend>
-      <popular></popular>
+      <home-recommend
+        :recommends="recommends"
+        @homeRecImgLoad="homeRecImgLoad"
+      ></home-recommend>
+      <popular @homePopImgLoad="homePopImgLoad"></popular>
       <tab-control
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
@@ -52,6 +55,7 @@ import { getHomeMultiData, getHomeGoods } from "network/home";
 
 //导入其他
 import { debounce } from "common/utils";
+import { itemImgLoadMixin } from "common/mixin";
 
 export default {
   components: {
@@ -86,6 +90,8 @@ export default {
       return this.goods[this.currentType].list;
     },
   },
+  //混入的应用
+  mixins: [itemImgLoadMixin],
   created() {
     //在生命周期函数内进行的网络请求
     // 1，请求首页上部分的多个数据
@@ -96,20 +102,21 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
-    //1，监听图片的加载完成：注意不要在created中监听
-    const refresh = debounce(this.$refs.scroll.refresh, 50);
-    this.$bus.$on("itemImgLoad", () => {
-      //从事件总线监听itemImgLoad事件
-      //★★★★★ 非父子组件之间传值 ★★★★★ 可使用事件总线 ★★★★★（先用vue的原型将vue实例赋值给$bus）★★★★★
-      // console.log("监听到了图片加载完成"); //一页会监听到30次，但我们不希望scroll也刷新30次！即可使用防抖函数
-      refresh(); //更新scroll
-    });
+    //1，监听goods-list图片的加载完成：注意不要在created中监听
+    //原代码提取至混入里面
+    //从事件总线监听itemImgLoad事件
+    //★★★★ 非父子组件/兄弟组件之间传值 ★★★★ 使用事件总线 ★★★★（先用vue的原型将vue实例赋值给$bus）★★★★
+    // console.log("监听到了图片加载完成"); //一页会监听到30次，但我们不希望scroll也刷新30次！即可使用防抖函数
+    //更新scroll
   },
-
-  //解决老版本BS离开再进入某页面时不能保持位置的问题
-  // destroyed() {
-  //   console.log("-----");
-  // },
+  deactivated() {
+    this.$bus.$off("itemImgLoad", this.itemImgLoadFunc);
+    // console.log("取消了主页的监听图片加载及scroll刷新");
+  },
+  //★★★解决老版本BS离开再进入某页面时不能保持位置的问题★★★
+  destroyed() {
+    console.log("-----");
+  },
   // activated() {
   //   this.$refs.scroll.scroll.scrollTo(0, this.saveY, 0);
   //   this.$refs.scroll.refresh();
@@ -157,6 +164,13 @@ export default {
       //所有的组件都有一个属性（$el），用于获取组件中的元素
       // console.log(this.$refs.tabControl2.$el.offsetTop);
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      this.refresh(); //混入里的refresh
+    },
+    homeRecImgLoad() {
+      this.refresh(); //混入里的refresh
+    },
+    homePopImgLoad() {
+      this.refresh(); //混入里的refresh
     },
 
     /*

@@ -30,7 +30,13 @@ export default {
   methods: {
     imgLoad() {
       this.$bus.$emit("itemImgLoad");
-      //当一张图片加载完成即将itemImgLoad事件发射到事件总线上（非父子组件之间的通信）
+      //当一张图片加载完成即将itemImgLoad事件发射到事件总线上（非父子组件之间的通信/兄弟组件之间的通信）
+      //使用路由的方法先判断路径再发送对应的事件（注意indexOf的使用）
+      // if(this.$route.path.indexOf('/home') === 0){
+      //    this.$bus.$emit("homeItemImgLoad");
+      // }else if(this.$route.path.indexOf('/detail') === 0){
+      //   this.$bus.$emit("detailItemImgLoad");
+      // }
     },
     goodsItemClick() {
       this.$router.push("/detail/" + this.goodsItem.iid);
