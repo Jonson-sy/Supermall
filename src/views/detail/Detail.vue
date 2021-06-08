@@ -1,24 +1,39 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="wrapper" ref="scroll">
-      <detail-swiper
-        :top-images="topImages"
-        @swiperImgLoad="swiperImgLoad"
-      ></detail-swiper>
+    <!-- 事件监听可以使用驼峰命名，但是传值最好使用短横线连接的方式 -->
+    <detail-nav-bar class="detail-nav"
+                    @navBarClick="navBarClick"
+                    ref="detailNav">
+    </detail-nav-bar>
+    <div>{{$store.state.cartList.length}}</div>
+    <scroll class="wrapper"
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll">
+      <detail-swiper :top-images="topImages"
+                     @swiperImgLoad="swiperImgLoad">
+      </detail-swiper>
       <detail-goods-desc :goods="goods"></detail-goods-desc>
       <detail-shop-info :shop="shop"></detail-shop-info>
-      <detail-goods-info
-        :goodsInfo="goodsInfo"
-        @goodsImgLoad="goodsImgLoad"
-      ></detail-goods-info>
-      <detail-goods-params :goods-params="goodsParams"></detail-goods-params>
-      <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
+      <detail-goods-info :goods-info="goodsInfo"
+                         @goodsImgLoad="goodsImgLoad">
+      </detail-goods-info>
+      <detail-goods-params :goods-params="goodsParams"
+                           ref="params">
+      </detail-goods-params>
+      <detail-comment-info :comment-info="commentInfo"
+                           ref="comment">
+      </detail-comment-info>
       <div>
         <div class="bottomRcmd">猜你喜欢</div>
-        <goods-list :goods-list="recommend"></goods-list>
+        <goods-list :goods-list="recommend"
+                    ref="recommend">
+        </goods-list>
       </div>
     </scroll>
+    <back-top @click.native="backTopClick"
+              v-show="isShowBackTop"></back-top>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
   </div>
 </template>
 
@@ -32,6 +47,7 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailGoodsParams from "./childComps/DetailGoodsParams";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 //导入公共组件
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
@@ -47,11 +63,11 @@ import {
 
 //导入其他
 import { debounce } from "common/utils";
-import { itemImgLoadMixin } from "common/mixin";
+import { itemImgLoadMixin, backTopMixin } from "common/mixin";
 
 export default {
   name: "Detail", //在keep-alive中使用exclude时是根据此name属性来寻找组件的
-  data() {
+  data () {
     return {
       iid: null,
       topImages: [],
@@ -61,6 +77,9 @@ export default {
       goodsParams: {},
       commentInfo: {},
       recommend: [],
+      themeY: [],
+      getThemeY: null,
+      currentIndex: 0,
     };
   },
   components: {
@@ -71,12 +90,13 @@ export default {
     DetailGoodsInfo,
     DetailGoodsParams,
     DetailCommentInfo,
+    DetailBottomBar,
     Scroll,
-    GoodsList,
+    GoodsList
   },
   //混入的应用
-  mixins: [itemImgLoadMixin],
-  created() {
+  mixins: [itemImgLoadMixin, backTopMixin],
+  created () {
     // console.log("重新创建了");
     //一，保存传入的iid
     // this.iid = this.$route.query.iid;
@@ -89,29 +109,43 @@ export default {
       const data = res.result;
       this.topImages = data.itemInfo.topImages;
 
-      //2，获取商品信息
+      //2，获取并保存商品信息
       this.goods = new Goods(
         data.itemInfo,
         data.columns,
         data.shopInfo.services
       );
 
-      //3,获取店铺信息
+      //3,获取并保存店铺信息
       this.shop = new Shop(data.shopInfo);
 
-      //4，获取商品详情信息
+      //4，获取并保存商品详情信息
       this.goodsInfo = data.detailInfo;
 
-      //5，获取商品参数数据
+      //5，获取并保存商品参数数据
       this.goodsParams = new GoodsParams(
         data.itemParams.info,
         data.itemParams.rule
       );
 
-      //6，保存评论数据
+      //6，获取并保存评论数据
       if (data.rate.list) {
         this.commentInfo = data.rate.list[0];
       }
+
+      this.$nextTick(() => {
+        //哪里能够获取到正确的offsetTop？
+        //1，created中不行，因为压根不能获取到元素
+        //2，mounted中不行，因为数据还没有获取到
+        //3，获取到数据的回调（.then(..)）中不行，因为DOM还没渲染完
+        //4，$nextTick也不行，因为图片高度没有计算在内
+        //5，在图片加载完成后，获取的高度才是正确的
+        // this.themeY.push(0);
+        // this.themeY.push(this.$refs.params.$el.offsetTop);
+        // this.themeY.push(this.$refs.comment.$el.offsetTop);
+        // this.themeY.push(this.$refs.recommend.$el.offsetTop);
+        // console.log(this.themeY);
+      });
     });
 
     //三，请求推荐的数据并保存
@@ -119,6 +153,17 @@ export default {
       // console.log(res);
       this.recommend = res.data.list;
     });
+    //对getThemeY进行赋值（对this.themeY赋值操作进行防抖）
+    this.getThemeY = debounce(() => {
+      this.themeY = [];
+      this.themeY.push(0);
+      this.themeY.push(this.$refs.params.$el.offsetTop - 44);
+      this.themeY.push(this.$refs.comment.$el.offsetTop - 44);
+      this.themeY.push(this.$refs.recommend.$el.offsetTop - 44 - 57);
+      this.themeY.push(Number.MAX_VALUE)  //主动在数组最后添加一个最大值，便于后续判断时使用
+      //减去NavBar高度（因为wrapper有个padding-top）,推荐部分再减去一个猜你喜欢的高度
+      console.log(this.themeY);
+    }, 100);
   },
   /* activated() {
     console.log("重新创建了");
@@ -132,15 +177,15 @@ export default {
       this.topImages = res.result.itemInfo.topImages;
     });
   }, */
-  mounted() {
+  mounted () {
     //原代码见混入
   },
-  destroyed() {
+  destroyed () {
     this.$bus.$off("itemImgLoad", this.itemImgLoadFunc);
     // console.log("取消了详情页的监听图片加载及scroll刷新");
   },
   methods: {
-    swiperImgLoad() {
+    swiperImgLoad () {
       //假如轮播如有四张图片，此方法即会被调用四次，即会调用四次refresh，但refresh等于防抖函数，即具有了防抖功能
       //直接使用 const refresh = ...  refresh会被赋值四次(因为是在块级作用域内)，虽然也有防抖，但达不到防抖效果
       // console.log("监听到了轮播图图片加载");
@@ -148,11 +193,66 @@ export default {
       // const refresh = debounce(this.$refs.scroll.refresh, 50);
       // refresh();
     },
-    goodsImgLoad() {
+    goodsImgLoad () {
       this.refresh();
       // const refresh = debounce(this.$refs.scroll.refresh, 50);
       // refresh();
+      this.getThemeY();
     },
+    navBarClick (index) {
+      // console.log(index);
+      // navBar与滚动的联动效果：一
+      this.$refs.scroll.scroll.scrollTo(0, -this.themeY[index], 500);
+    },
+    contentScroll (position) {
+      //1,判断backtop是否显示
+      // 注意此条代码不能抽离到mixin里面，因为mixin会覆盖methods（对象）里面的相同方法（或函数），
+      // 而不像生命周期函数（看做是方法或函数）一样去合并方法中相同的代码
+      this.isShowBackTop = -position.y > 900;
+
+      //2，navBar与滚动的联动效果：二
+      const positionY = -position.y;
+      // postionY和主题值[0, 8717, 9512, 9908，1.7976931348623157e+308]进行比较
+      // positionY 在 0 ~ 8717 之间      index = 0
+      // positionY 在 8717 ~ 9512 之间   index = 1
+      // positionY 在 9512 ~ 9908 之间   index = 2
+      // positionY 在 9908 ~ 最大值之间   index = 3
+      let length = this.themeY.length
+      for (let i = 0; i < length - 1; i++) {//先将主题值取出来,再将postionY与主题值进行有条件的比较后，得到正确的index
+        if (this.currentIndex !== i && (positionY >= this.themeY[i] && positionY < this.themeY[i + 1])) {
+          this.currentIndex = i;
+          // console.log(this.currentIndex);
+          this.$refs.detailNav.currentIndex = this.currentIndex;
+        }
+      }
+
+      // postionY和主题值[0, 8717, 9512, 9908]进行比较
+      // positionY 在 0 ~ 8717 之间      index = 0
+      // positionY 在 8717 ~ 9512 之间   index = 1
+      // positionY 在 9512 ~ 9908 之间   index = 2
+      // positionY 超过 9908             index = 3
+      // let length = this.themeY.length
+      // for (let i = 0; i < length; i++) {
+      //   if (this.currentIndex !== i && ((i < length - 1 && positionY >= this.themeY[i] && positionY < this.themeY[i + 1]) || (i === length - 1 && positionY >= this.themeY[i]))) {
+      //     this.currentIndex = i;
+      //     // console.log(this.currentIndex);
+      //     this.$refs.detailNav.currentIndex = this.currentIndex;
+      //   }
+      // }
+    },
+    addToCart () {
+      // console.log('--------');
+      // 1，将商品信息添加到Store中
+      const product = {}
+      product.iid = this.iid
+      product.imgURL = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.realPrice
+
+      //2，将商品添加到state中
+      this.$store.commit('addCart', product)
+    }
   },
 };
 </script>
@@ -165,7 +265,7 @@ export default {
   height: 100vh;
 }
 .wrapper {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 49px);
 }
 .detail-nav {
   position: relative;

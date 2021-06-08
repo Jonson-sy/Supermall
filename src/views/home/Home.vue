@@ -1,38 +1,31 @@
 <template>
   <div id="home">
-    <nav-bar class="homesnav"><div slot="center">购物街</div></nav-bar>
-    <tab-control
-      :titles="['流行', '新款', '精选']"
-      @tabClick="tabClick"
-      ref="tabControl1"
-      class="tab-control"
-      v-show="isTabControlFixed"
-    />
-    <scroll
-      class="wrapper"
-      ref="scroll"
-      :probeType="3"
-      @scroll="contentScroll"
-      :pullUpLoad="true"
-      @pullingUp="loadMore"
-    >
-      <home-swiper
-        :banners="banners"
-        @swiperImgLoad="swiperImgLoad"
-      ></home-swiper>
-      <home-recommend
-        :recommends="recommends"
-        @homeRecImgLoad="homeRecImgLoad"
-      ></home-recommend>
+    <nav-bar class="homesnav">
+      <div slot="center">购物街</div>
+    </nav-bar>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 @tabClick="tabClick"
+                 ref="tabControl1"
+                 class="tab-control"
+                 v-show="isTabControlFixed" />
+    <scroll class="wrapper"
+            ref="scroll"
+            :probeType="3"
+            @scroll="contentScroll"
+            :pullUpLoad="true"
+            @pullingUp="loadMore">
+      <home-swiper :banners="banners"
+                   @swiperImgLoad="swiperImgLoad"></home-swiper>
+      <home-recommend :recommends="recommends"
+                      @homeRecImgLoad="homeRecImgLoad"></home-recommend>
       <popular @homePopImgLoad="homePopImgLoad"></popular>
-      <tab-control
-        :titles="['流行', '新款', '精选']"
-        @tabClick="tabClick"
-        ref="tabControl2"
-      />
+      <tab-control :titles="['流行', '新款', '精选']"
+                   @tabClick="tabClick"
+                   ref="tabControl2" />
       <goods-list :goods-list="showGoods"></goods-list>
     </scroll>
-    <back-top @click.native="backTopClick" v-show="isShowBackTop"></back-top>
+    <back-top @click.native="backTopClick"
+              v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -48,14 +41,13 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabcontrol/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
 
 //导入网络相关
 import { getHomeMultiData, getHomeGoods } from "network/home";
 
 //导入其他
 import { debounce } from "common/utils";
-import { itemImgLoadMixin } from "common/mixin";
+import { itemImgLoadMixin, backTopMixin } from "common/mixin";
 
 export default {
   components: {
@@ -67,9 +59,8 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
   },
-  data() {
+  data () {
     return {
       banners: [],
       recommends: [],
@@ -79,20 +70,19 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBackTop: false,
       tabOffsetTop: 0,
       isTabControlFixed: false,
       saveY: 0,
     };
   },
   computed: {
-    showGoods() {
+    showGoods () {
       return this.goods[this.currentType].list;
     },
   },
   //混入的应用
-  mixins: [itemImgLoadMixin],
-  created() {
+  mixins: [itemImgLoadMixin, backTopMixin],
+  created () {
     //在生命周期函数内进行的网络请求
     // 1，请求首页上部分的多个数据
     this.getHomeMultiData();
@@ -101,7 +91,7 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
-  mounted() {
+  mounted () {
     //1，监听goods-list图片的加载完成：注意不要在created中监听
     //原代码提取至混入里面
     //从事件总线监听itemImgLoad事件
@@ -109,12 +99,12 @@ export default {
     // console.log("监听到了图片加载完成"); //一页会监听到30次，但我们不希望scroll也刷新30次！即可使用防抖函数
     //更新scroll
   },
-  deactivated() {
+  deactivated () {
     this.$bus.$off("itemImgLoad", this.itemImgLoadFunc);
     // console.log("取消了主页的监听图片加载及scroll刷新");
   },
   //★★★解决老版本BS离开再进入某页面时不能保持位置的问题★★★
-  destroyed() {
+  destroyed () {
     console.log("-----");
   },
   // activated() {
@@ -128,7 +118,7 @@ export default {
     /*
      **事件监听的相关方法
      */
-    tabClick(index) {
+    tabClick (index) {
       switch (index) {
         case 0:
           this.currentType = "pop";
@@ -144,45 +134,44 @@ export default {
       this.$refs.tabControl1.currentIndex = index;
       this.$refs.tabControl2.currentIndex = index;
     },
-    backTopClick() {
-      this.$refs.scroll.backTop(0, 0, 600);
-    },
-    contentScroll(position) {
+    contentScroll (position) {
       // console.log(position);
       //1,判断backtop是否显示
+      // 注意此条代码不能抽离到mixin里面，因为mixin会覆盖methods（对象）里面的相同方法（或函数），
+      // 而不像生命周期函数（看做是方法或函数）一样去合并方法中相同的代码
       this.isShowBackTop = -position.y > 900;
 
       //2，决定tabcontrol是否吸顶（position = fixed）
       this.isTabControlFixed = -position.y > this.tabOffsetTop;
     },
-    loadMore() {
+    loadMore () {
       this.getHomeGoods(this.currentType);
       // this.$refs.scroll.scroll.refresh();
     },
-    swiperImgLoad() {
+    swiperImgLoad () {
       //获取tabcontrol的offsetTop
       //所有的组件都有一个属性（$el），用于获取组件中的元素
       // console.log(this.$refs.tabControl2.$el.offsetTop);
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
       this.refresh(); //混入里的refresh
     },
-    homeRecImgLoad() {
+    homeRecImgLoad () {
       this.refresh(); //混入里的refresh
     },
-    homePopImgLoad() {
+    homePopImgLoad () {
       this.refresh(); //混入里的refresh
     },
 
     /*
      **网络请求的相关方法
      */
-    getHomeMultiData() {
+    getHomeMultiData () {
       getHomeMultiData().then((res) => {
         this.banners = res.data.banner.list; //将请求到的数据保存到data里面
         this.recommends = res.data.recommend.list;
       });
     },
-    getHomeGoods(type) {
+    getHomeGoods (type) {
       const page = this.goods[type].page + 1; //goods里的page初始化为0
       getHomeGoods(type, page).then((res) => {
         // console.log(res);

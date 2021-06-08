@@ -35,6 +35,8 @@ export default {
   methods: {
     itemClick(index) {
       this.currentIndex = index;
+      //发出navBar点击事件
+      this.$emit("navBarClick", index);
     },
     backClick() {
       this.$router.back();

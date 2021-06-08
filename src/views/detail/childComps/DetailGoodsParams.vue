@@ -38,7 +38,7 @@ export default {
 <style scoped>
 .goods-params {
   font-size: 16px;
-  padding: 20px 15px 20px;
+  padding: 0px 15px 20px;
   width: 100%;
   border-bottom: 5px solid #ddd;
 }
