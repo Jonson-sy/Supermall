@@ -36,7 +36,10 @@ export default {
 .bottomBar {
   height: 49px;
   background-color: #fff;
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   text-align: center;
   display: flex;
 }
@@ -48,6 +51,10 @@ export default {
 
 .bar-item > div {
   flex: 1;
+}
+
+.bar-left {
+  background-color: #fff;
 }
 
 .bar-left .text {

@@ -1,5 +1,6 @@
 <template>
-  <div class="wrapper" ref="wrapper">
+  <div class="wrapper"
+       ref="wrapper">
     <div class="content">
       <slot></slot>
     </div>
@@ -21,12 +22,12 @@ export default {
     },
   },
 
-  data() {
+  data () {
     return {
       scroll: null,
     };
   },
-  mounted() {
+  mounted () {
     //1，创建Bscroll对象
     this.scroll = new BScroll(this.$refs.wrapper, {
       click: true,
@@ -54,17 +55,18 @@ export default {
   },
 
   methods: {
-    backTop(x, y, time = 700) {
+    backTop (x, y, time = 700) {
       this.scroll && this.scroll.scrollTo(x, y, time);
     },
-    refresh() {
+    refresh () {
       // console.log("每一张图片加载完成");
+      // console.log('refresh完成');
       this.scroll && this.scroll.refresh();
     },
-    finishPullUp() {
+    finishPullUp () {
       this.scroll && this.scroll.finishPullUp();
     },
-    getScrollY() {
+    getScrollY () {
       return this.scroll ? this.scroll.y : 0;
     },
   },

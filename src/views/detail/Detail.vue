@@ -5,7 +5,6 @@
                     @navBarClick="navBarClick"
                     ref="detailNav">
     </detail-nav-bar>
-    <div>{{$store.state.cartList.length}}</div>
     <scroll class="wrapper"
             ref="scroll"
             :probe-type="3"
@@ -162,7 +161,7 @@ export default {
       this.themeY.push(this.$refs.recommend.$el.offsetTop - 44 - 57);
       this.themeY.push(Number.MAX_VALUE)  //主动在数组最后添加一个最大值，便于后续判断时使用
       //减去NavBar高度（因为wrapper有个padding-top）,推荐部分再减去一个猜你喜欢的高度
-      console.log(this.themeY);
+      // console.log(this.themeY);
     }, 100);
   },
   /* activated() {
@@ -251,7 +250,7 @@ export default {
       product.price = this.goods.realPrice
 
       //2，将商品添加到state中
-      this.$store.commit('addCart', product)
+      this.$store.dispatch('addCart', product)
     }
   },
 };
@@ -263,6 +262,8 @@ export default {
   z-index: 9;
   background-color: #fff;
   height: 100vh;
+  overflow: hidden;
+  /* 避免鼠标滚轮滑动页面 */
 }
 .wrapper {
   height: calc(100% - 44px - 49px);
