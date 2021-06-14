@@ -1,33 +1,66 @@
 <template>
   <div class="bottom-bar">
     <div class="select-all">
-      <check-button class="check-button"></check-button>
+      <check-button :is-checked="isSelectAll"
+                    class="check-button"
+                    @click.native="selectAllClick">
+      </check-button>
       <span>全选 </span>
     </div>
     <span class="total">合计:¥{{totalPrice}}</span>
-    <span class="toCount">去结算({{checkedLength}})</span>
+    <span class="toCount"
+          @click="toCountClick">去结算({{checkedLength}})</span>
   </div>
 </template>
 
 <script>
 import CheckButton from './CheckButton.vue'
 
-import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'  //注意是从vuex中导入
 
 export default {
   components: {
     CheckButton
   },
   computed: {
-    ...mapGetters(['cartLength', 'cartList']),
+    ...mapGetters(['cartLength', 'cartList']),  //将getters中的方法映射到计算属性中
 
     totalPrice () {
-      return this.cartList.filter(item => item.checked).reduce((preValue, item) => {
+      return this.cartList.filter(item => item.checked == true).reduce((preValue, item) => {
         return preValue + item.count * item.price
       }, 0).toFixed(2)
     },
     checkedLength () {
-      return this.cartList.filter(item => item.checked).length
+      return this.cartList.filter(item => item.checked == true).length
+    },
+    isSelectAll () {
+      if (this.cartList.length === 0) {
+        return false
+      }
+      //方法一：filter迭代
+      // return !(this.cartList.filter(item => item.checked == false).length)
+      //方法二：find(注意：item.checked == false == !item.checked)
+      return !(this.cartList.find(item => !item.checked))
+      //方法三：普通的遍历
+      // for (let item of this.cartList) {
+      //   if (!item.checked) {
+      //     return false
+      //   }
+      // }
+      // return true
+    },
+  },
+  methods: {
+    selectAllClick () {
+      // console.log('----------');
+      if (this.isSelectAll) {
+        this.cartList.forEach(item => item.checked = false);
+      } else {
+        this.cartList.forEach(item => item.checked = true)
+      }
+    },
+    toCountClick () {
+      this.$toast.show('你有钱吗？就买！', 2000)
     }
   }
 }

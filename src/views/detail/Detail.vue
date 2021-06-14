@@ -33,6 +33,7 @@
     <back-top @click.native="backTopClick"
               v-show="isShowBackTop"></back-top>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
+    <!-- <toast></toast> -->
   </div>
 </template>
 
@@ -50,6 +51,7 @@ import DetailBottomBar from "./childComps/DetailBottomBar";
 //导入公共组件
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
+// import Toast from "components/common/toast/Toast";
 
 //导入网络请求相关
 import {
@@ -63,6 +65,7 @@ import {
 //导入其他
 import { debounce } from "common/utils";
 import { itemImgLoadMixin, backTopMixin } from "common/mixin";
+import { mapActions } from 'vuex'
 
 export default {
   name: "Detail", //在keep-alive中使用exclude时是根据此name属性来寻找组件的
@@ -91,7 +94,8 @@ export default {
     DetailCommentInfo,
     DetailBottomBar,
     Scroll,
-    GoodsList
+    GoodsList,
+    // Toast
   },
   //混入的应用
   mixins: [itemImgLoadMixin, backTopMixin],
@@ -184,6 +188,7 @@ export default {
     // console.log("取消了详情页的监听图片加载及scroll刷新");
   },
   methods: {
+    ...mapActions(['addCart']),
     swiperImgLoad () {
       //假如轮播如有四张图片，此方法即会被调用四次，即会调用四次refresh，但refresh等于防抖函数，即具有了防抖功能
       //直接使用 const refresh = ...  refresh会被赋值四次(因为是在块级作用域内)，虽然也有防抖，但达不到防抖效果
@@ -250,7 +255,11 @@ export default {
       product.price = this.goods.realPrice
 
       //2，将商品添加到state中
-      this.$store.dispatch('addCart', product)
+      // this.$store.dispatch('addCart', product)
+      this.addCart(product).then(res => {
+        // console.log(res);
+        this.$toast.show(res, 2000)
+      })
     }
   },
 };

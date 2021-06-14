@@ -14,7 +14,13 @@
       <p class="desc">{{product.desc}}</p>
       <div class="bottom">
         <span class="price">¥{{product.price}}</span>
-        <span class="count">x{{product.count}}</span>
+        <div class="changeCount">
+          <span class="plus"
+                @click="plusClick">+</span>
+          <span class="count">x{{product.count}}</span>
+          <span class="subtract"
+                @click="subtractClick">-</span>
+        </div>
       </div>
     </div>
   </div>
@@ -30,6 +36,12 @@ export default {
       default () {
         return {}
       }
+    },
+    index: {
+      type: Number,
+      default () {
+        return 0
+      }
     }
   },
   components: {
@@ -38,6 +50,12 @@ export default {
   methods: {
     checkClick () {
       this.product.checked = !this.product.checked
+    },
+    plusClick () {
+      this.$store.commit('countPlus', this.index)
+    },
+    subtractClick () {
+      this.$store.commit('countSubstract', this.index)
     }
   }
 }
@@ -97,8 +115,35 @@ export default {
   float: left;
   color: orangered;
 }
+
+.changeCount {
+  width: 30%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin-right: 12px;
+}
+
+.plus,
+.subtract {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #eee;
+}
+
+.plus {
+  float: left;
+}
+
 .count {
+  margin-left: 12px;
+}
+.subtract {
   float: right;
-  margin-right: 15px;
 }
 </style>
