@@ -31,7 +31,9 @@
       </div>
     </scroll>
     <back-top @click.native="backTopClick"
-              v-show="isShowBackTop"></back-top>
+              v-show="isShowBackTop"
+              class="backTop">
+    </back-top>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <!-- <toast></toast> -->
   </div>
@@ -268,7 +270,7 @@ export default {
 <style scoped>
 #detail {
   position: relative;
-  z-index: 9;
+  /* z-index: 2; */
   background-color: #fff;
   height: 100vh;
   overflow: hidden;
@@ -279,8 +281,9 @@ export default {
 }
 .detail-nav {
   position: relative;
-  z-index: 9;
-  background-color: #fff;
+  z-index: 99;
+  opacity: 1;
+  background-color: #ffff;
 }
 .bottomRcmd {
   width: 35vw;
@@ -292,5 +295,9 @@ export default {
   margin: 10px 30vw;
   border: 2px solid var(--color-tint);
   border-radius: 20px;
+}
+
+.backTop {
+  z-index: 99;
 }
 </style>

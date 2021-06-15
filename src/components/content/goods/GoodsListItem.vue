@@ -1,6 +1,9 @@
 <template>
-  <div class="goods-list-item" @click="goodsItemClick">
-    <img :src="showImage" alt="" @load="imgLoad" />
+  <div class="goods-list-item"
+       @click="goodsItemClick">
+    <img v-lazy="showImage"
+         alt=""
+         @load="imgLoad" />
     <div class="goods-info">
       <p>{{ goodsItem.title }}</p>
       <span class="price">¥：{{ goodsItem.price }}</span>
@@ -14,13 +17,13 @@ export default {
   props: {
     goodsItem: {
       type: Object,
-      default() {
+      default () {
         return {};
       },
     },
   },
   computed: {
-    showImage() {
+    showImage () {
       //防止同一个组件在不同地方使用时接口的数据位置不一致的问题
       return (
         this.goodsItem.img || this.goodsItem.image || this.goodsItem.show.img
@@ -28,7 +31,7 @@ export default {
     },
   },
   methods: {
-    imgLoad() {
+    imgLoad () {
       this.$bus.$emit("itemImgLoad");
       //当一张图片加载完成即将itemImgLoad事件发射到事件总线上（非父子组件之间的通信/兄弟组件之间的通信）
       //使用路由的方法先判断路径再发送对应的事件（注意indexOf的使用）
@@ -38,7 +41,7 @@ export default {
       //   this.$bus.$emit("detailItemImgLoad");
       // }
     },
-    goodsItemClick() {
+    goodsItemClick () {
       this.$router.push("/detail/" + this.goodsItem.iid);
       // this.$router.push({
       //   path: "/detail",

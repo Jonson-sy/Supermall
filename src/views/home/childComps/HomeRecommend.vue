@@ -1,8 +1,12 @@
 <template>
   <div class="recommend">
-    <div v-for="item in recommends" :key="item.image" class="recommendItem">
+    <div v-for="item in recommends"
+         :key="item.image"
+         class="recommendItem">
       <a :href="item.link">
-        <img :src="item.image" alt="" @load="homeRecImgLoad" />
+        <img :src="item.image"
+             alt=""
+             @load="homeRecImgLoad" />
         <div>{{ item.title }}</div>
       </a>
     </div>
@@ -14,13 +18,13 @@ export default {
   props: {
     recommends: {
       type: Array,
-      default() {
+      default () {
         return [];
       },
     },
   },
   methods: {
-    homeRecImgLoad() {
+    homeRecImgLoad () {
       this.$emit("homeRecImgLoad");
     },
   },
@@ -42,8 +46,8 @@ export default {
 }
 
 .recommendItem img {
-  width: 5rem;
-  height: 5rem;
-  margin-bottom: 0.57rem;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
 }
 </style>

@@ -6,6 +6,9 @@
     </nav-bar>
 
     <!-- 购物车列表 -->
+    <div v-show="!length"
+         class="empty">购物车为空
+    </div>
     <cart-list></cart-list>
 
     <!-- 购物车汇总 -->
@@ -30,6 +33,11 @@ export default {
     CartList,
     CartBottomBar,
   },
+  data () {
+    return {
+      isShow: true,
+    }
+  },
   computed: {
     //★★★★★关于mapGetters的两种语法（数组语法/对象语法）★★★★★ 注意是从vuex导入★★★★★
     // ...mapGetters(['cartLength', 'cartList'])  
@@ -37,7 +45,7 @@ export default {
       length: 'cartLength',
       // list: 'cartList'
     })
-  }
+  },
 }
 </script>
 
@@ -46,5 +54,14 @@ export default {
   background-color: var(--color-tint);
   color: #fff;
   font-size: 18px;
+}
+
+.empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #ccc;
 }
 </style>

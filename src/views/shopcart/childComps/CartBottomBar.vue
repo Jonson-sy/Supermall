@@ -5,11 +5,12 @@
                     class="check-button"
                     @click.native="selectAllClick">
       </check-button>
-      <span>全选 </span>
+      <span>全选</span>
     </div>
     <span class="total">合计:¥{{totalPrice}}</span>
     <span class="toCount"
-          @click="toCountClick">去结算({{checkedLength}})</span>
+          @click="toCountClick">去结算({{checkedLength}})
+    </span>
   </div>
 </template>
 
@@ -60,7 +61,11 @@ export default {
       }
     },
     toCountClick () {
-      this.$toast.show('你有钱吗？就买！', 2000)
+      if (this.cartLength === 0) {
+        this.$toast.show('请选择购买的商品', 2000)
+      } else {
+        this.$toast.show('你有钱吗？就买！', 2000)
+      }
     }
   }
 }
@@ -71,10 +76,12 @@ export default {
   height: 40px;
   width: 100%;
   display: flex;
-  position: relative;
+  position: fixed;
+  bottom: 49px;
   line-height: 40px;
   text-align: center;
   background-color: #eee;
+  z-index: 99;
 }
 
 .select-all {

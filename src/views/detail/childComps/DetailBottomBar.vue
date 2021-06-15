@@ -36,12 +36,14 @@ export default {
 .bottomBar {
   height: 49px;
   background-color: #fff;
+  opacity: 1;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   text-align: center;
   display: flex;
+  z-index: 99;
 }
 
 .bar-item {
