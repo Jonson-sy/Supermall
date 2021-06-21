@@ -31,7 +31,7 @@ export default {
 <style scoped>
 .toast {
   height: 40px;
-  line-height: 33px;
+  line-height: 31px;
   position: fixed;
   top: 50%;
   left: 50%;

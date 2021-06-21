@@ -36,7 +36,7 @@ export default {
   background-color: #fff;
   font-size: 15px;
   color: #333;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .normal-list .item {

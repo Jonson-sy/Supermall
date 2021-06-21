@@ -1,5 +1,6 @@
 <template>
-  <div class="user-info">
+  <div class="user-info"
+       @click="userInfoClick">
     <img class="avatar"
          src="~assets/img/profile/avatar.svg"
          alt="">
@@ -20,7 +21,12 @@
 
 <script>
 export default {
-  name: "UserInfo"
+  name: "UserInfo",
+  methods: {
+    userInfoClick () {
+      this.$router.push("/register")
+    }
+  }
 }
 </script>
 

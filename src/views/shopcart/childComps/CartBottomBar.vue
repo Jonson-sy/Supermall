@@ -77,7 +77,7 @@ export default {
   width: 100%;
   display: flex;
   position: fixed;
-  bottom: 49px;
+  bottom: 45px;
   line-height: 40px;
   text-align: center;
   background-color: #eee;
@@ -87,7 +87,7 @@ export default {
 .select-all {
   display: flex;
   align-items: center;
-  width: 60px;
+  width: 63px;
   margin-left: 10px;
   line-height: 19px;
   box-sizing: content-box;
@@ -101,6 +101,7 @@ export default {
 }
 .toCount {
   width: 90px;
-  background-color: red;
+  background-color: var(--color-tint);
+  color: #fff;
 }
 </style>

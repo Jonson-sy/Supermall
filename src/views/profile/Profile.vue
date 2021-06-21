@@ -1,31 +1,42 @@
 <template>
-  <div id="profile"
-       @click="profileClick">
+  <div id="profile">
     <nav-bar class="nav-bar">
       <div slot="center">我的档案</div>
     </nav-bar>
     <user-info />
-    <account-info />
-    <normal-list-view :list-data="orderList" />
-    <normal-list-view :list-data="serviceList" />
+    <div @click="profileClick">
+      <account-info />
+      <normal-list-view :list-data="orderList" />
+      <normal-list-view :list-data="serviceList" />
+    </div>
+    <div class="bottomRcmd">
+      <div class="recommend">推荐商品</div>
+      <goods-list :goods-list="recommend"
+                  ref="recommend">
+      </goods-list>
+    </div>
   </div>
 </template>
 
 <script>
 //导入公共组件
 import NavBar from 'components/common/navbar/NavBar'
+import GoodsList from 'components/content/goods/GoodsList'
 //导入子组件
 import UserInfo from './childComps/UserInfo'
 import AccountInfo from './childComps/AccountInfo'
 import NormalListView from './childComps/NormalListView'
 
+import { getRecommend } from 'network/profile'
+
 export default {
   name: "Profile",
   components: {
     NavBar,
+    GoodsList,
     UserInfo,
     AccountInfo,
-    NormalListView
+    NormalListView,
   },
   data () {
     return {
@@ -37,8 +48,16 @@ export default {
       serviceList: [
         { icon: 'cart.svg', info: '我的购物车' },
         { icon: 'shopping.svg', info: '下载购物APP' },
-      ]
+      ],
+      recommend: []
     }
+  },
+  created () {
+    //请求推荐数据
+    getRecommend().then((res) => {
+      // console.log(res);
+      this.recommend = res.data.list;
+    });
   },
   methods: {
     profileClick () {
@@ -56,5 +75,24 @@ export default {
 .nav-bar {
   background-color: var(--color-tint);
   color: #fff;
+  font-size: 4.8vw;
+}
+
+.bottomRcmd {
+  background-color: #fff;
+  margin-top: 10px;
+  padding-top: 1px;
+  /* 此处存在外边距合并塌陷问题 */
+}
+.recommend {
+  width: 35vw;
+  height: 5vh;
+  line-height: 5vh;
+  text-align: center;
+  font-size: 20px;
+  color: var(--color-tint);
+  margin: 5px 30vw;
+  border: 2px solid var(--color-tint);
+  border-radius: 20px;
 }
 </style>

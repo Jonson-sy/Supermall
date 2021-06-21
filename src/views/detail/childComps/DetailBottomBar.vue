@@ -44,6 +44,7 @@ export default {
   text-align: center;
   display: flex;
   z-index: 99;
+  /* 用本页面的bottomBar盖住tabbar */
 }
 
 .bar-item {
@@ -67,7 +68,7 @@ export default {
   display: block;
   width: 22px;
   height: 22px;
-  margin: 5px auto 3px;
+  margin: 7px auto 2px;
   background: url("~assets/img/detail/detail_bottom.png") 0 0/100%;
 }
 

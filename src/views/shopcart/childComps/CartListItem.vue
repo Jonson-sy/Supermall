@@ -130,7 +130,7 @@ export default {
   display: inline-block;
   width: 20px;
   height: 20px;
-  line-height: 20px;
+  line-height: 18px;
   text-align: center;
   border-radius: 10px;
   background-color: #eee;

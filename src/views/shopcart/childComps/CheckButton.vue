@@ -30,7 +30,8 @@ export default {
 .check-button {
   width: 22px;
   height: 22px;
-  margin: -2px;
+  line-height: 22px;
+  margin: -2px 0 0 -2px;
   text-align: center;
   border: 2px solid #ccc;
   border-radius: 50%;
