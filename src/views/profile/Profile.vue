@@ -69,13 +69,20 @@ export default {
 
 <style scoped>
 #profile {
+  padding-top: 44px;
   background-color: #f2f2f2;
+  overflow: hidden;
 }
 
 .nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   background-color: var(--color-tint);
   color: #fff;
   font-size: 4.8vw;
+  z-index: 99;
 }
 
 .bottomRcmd {
