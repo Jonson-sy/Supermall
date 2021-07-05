@@ -1,5 +1,6 @@
 import { debounce } from './utils'
 import BackTop from "components/content/backTop/BackTop";
+import { POP, NEW, SELL } from "./const";
 
 //混入(提取处多个{对象}公共的一些成员)
 export const itemImgLoadMixin = {
@@ -32,5 +33,30 @@ export const backTopMixin = {
     backTopClick () {
       this.$refs.scroll.backTop(0, 0, 600);
     },
+  }
+}
+
+
+export const tabControlMixin = {
+  data: function () {
+    return {
+      currentType: POP
+    }
+  },
+  methods: {
+    tabClick (index) {
+      switch (index) {
+        case 0:
+          this.currentType = POP
+          break
+        case 1:
+          this.currentType = NEW
+          break
+        case 2:
+          this.currentType = SELL
+          break
+      }
+      console.log(this.currentType);
+    }
   }
 }

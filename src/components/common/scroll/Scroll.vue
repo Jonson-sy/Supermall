@@ -11,6 +11,7 @@
 import BScroll from "better-scroll";
 
 export default {
+  name: "Scroll",
   props: {
     probeType: {
       type: Number,
@@ -20,6 +21,16 @@ export default {
       type: Boolean,
       default: false,
     },
+    data: {
+      type: Array,
+      default () {
+        return []
+      }
+    },
+    click: {
+      type: Boolean,
+      default: true
+    },
   },
 
   data () {
@@ -27,10 +38,15 @@ export default {
       scroll: null,
     };
   },
+  computed: {
+    scrollY () {
+      return this.scroll.y
+    }
+  },
   mounted () {
     //1，创建Bscroll对象
     this.scroll = new BScroll(this.$refs.wrapper, {
-      click: true,
+      click: this.click,
       probeType: this.probeType, //外部使用scroll时决定是否监听滚动，若是scroll会通过自定义事件将position发射出去
       pullUpLoad: this.pullUpLoad, //外部使用scroll时决定是否监听上拉，若是scroll会通过自定义事件将pullingUp发射出去
     });
@@ -50,11 +66,11 @@ export default {
         this.$emit("pullingUp");
       });
     }
-
     // console.log(this.scroll);
   },
 
   methods: {
+    // _initScroll () { },
     backTop (x, y, time = 700) {
       this.scroll && this.scroll.scrollTo(x, y, time);
     },
@@ -69,9 +85,20 @@ export default {
     getScrollY () {
       return this.scroll ? this.scroll.y : 0;
     },
+    scrollTo (x, y, time = 100) {
+      this.scroll && this.scroll.scrollTo && this.scroll.scrollTo(x, y, time)
+    }
   },
+  watch: {
+    data () {
+      setTimeout(this.refresh, 20)
+    }
+  }
 };
 </script>
 
 <style scoped>
+.wrapper {
+  overflow: hidden;
+}
 </style>
